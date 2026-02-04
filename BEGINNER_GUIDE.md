@@ -1,166 +1,176 @@
-# 📄 소스 코드 문법 및 로직 상세 분석
-
-이 문서는 프로젝트 내 `src/` 디렉토리에 존재하는 **모든 소스 파일**을 하나도 빠짐없이 순서대로 분석합니다.
-각 섹션은 해당 파일의 실제 코드를 기반으로 하며, 기술적인 문법(Syntax)과 동작 논리(Logic)를 설명합니다.
+## 📄 소스 코드 문법 및 로직 상세 분석
+이 문서는 `src/` 디렉토리에 존재하는 모든 파일을 빠짐없이 순서대로 분석합니다. 각 섹션은 실제 코드 기반으로 Syntax와 Logic을 설명합니다.
 
 ---
 
-## 📂 1. `src/api/` (API 통신)
+## 📂 1. src/services/ (API 통신)
 
-### 📄 1.1 `src/api/client.js`
-Axios 라이브러리를 사용하여 HTTP 클라이언트 인스턴스를 생성하는 파일입니다.
+### 1.1 `src/services/api.js`
+Axios 인스턴스를 생성하는 모듈입니다.
+- `import axios from 'axios'`: Axios 라이브러리 로드.
+- `const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'`: 환경 변수 우선, 없으면 기본 URL 사용.
+- `axios.create({ baseURL, headers })`: 공통 헤더 포함한 HTTP 클라이언트 생성.
+- `export const apiClient`: 생성된 인스턴스 export.
 
-```javascript
-import axios from 'axios';
-```
-*   **Import**: `axios` 패키지를 가져옵니다.
-
-```javascript
-const apiClient = axios.create({
-    baseURL: 'http://localhost:3000',
-    timeout: 5000,
-});
-```
-*   **Method**: `axios.create()` 메서드는 사용자 정의 설정이 적용된 Axios 인스턴스를 반환합니다.
-*   **Object Literal**: 설정 객체입니다.
-    *   `baseURL`: 요청 URL의 접두사(Prefix)입니다.
-    *   `timeout`: 5000ms(5초) 후 요청을 중단시킵니다.
-
-```javascript
-export default apiClient;
-```
-*   **Export Default**: 생성된 인스턴스를 모듈의 기본값으로 내보냅니다.
+### 1.2 `src/services/kanbanApi.js`
+보드/업무/로그 CRUD API 함수 모음입니다.
+- `fetchBoards / fetchTasks / fetchLogs`: `GET` 요청으로 목록 조회.
+- `createBoard / createTask / createLog`: `POST` 요청으로 생성.
+- `updateBoard / updateTask`: `PUT` 요청으로 전체 수정.
+- `deleteBoard / deleteTask / deleteLog`: `DELETE` 요청으로 삭제.
+- 각 함수는 `apiClient`를 사용하여 일관된 설정을 유지합니다.
 
 ---
 
-## 📂 2. `src/composables/` (비즈니스 로직)
+## 📂 2. src/data/ (초기 데이터)
 
-### 📄 2.1 `src/composables/useBoard.js`
-상태 관리와 CRUD 로직이 캡슐화된 Composition API 모듈입니다.
-
-```javascript
-import { ref } from 'vue';
-import apiClient from '@/api/client';
-```
-*   **Ref**: Vue의 반응형 참조 객체 생성 함수입니다.
-
-```javascript
-const tasks = ref([]);
-const activities = ref([]);
-const isLoading = ref(false);
-```
-*   **Reactive State**: `ref()`로 감싸진 변수들은 값이 변경될 때 의존성이 있는 컴포넌트들을 자동으로 다시 렌더링합니다.
-
-```javascript
-export function useBoard() { ... }
-```
-*   **Named Export**: `useBoard` 함수를 내보냅니다. 이 함수는 클로저(Closure)를 활용하여 상태에 접근하는 메서드들을 반환합니다.
-
-#### 주요 비동기 메서드
-*   **`fetchTasks`**: `async/await` 패턴을 사용하여 `apiClient.get('/tasks')`를 호출(권한: GET)하고 결과값을 `tasks.value`에 할당합니다.
-*   **`fetchActivities`**: 활동 로그를 조회합니다. Query String `_sort=timestamp`를 사용하여 서버 측 정렬을 수행합니다.
-*   **`logActivity`**: 사용자 행동(생성/수정/삭제 등)을 `POST /activities`로 기록합니다.
-*   **`addTask`, `updateTask`, `deleteTask`**: 각각 `POST`, `PATCH`, `DELETE` HTTP 메서드를 사용하여 리소스를 조작하고, 성공 시 로컬 상태(`tasks.value`)를 갱신(Mutation)합니다.
+### 2.1 `src/data/seed.js`
+API 실패 시 대체로 사용하는 기본 데이터입니다.
+- `seedBoards / seedTasks / seedLogs`: 초기 보드, 업무, 로그 배열.
+- 날짜는 문자열 ISO 포맷으로 저장되어 JSON Server와 호환됩니다.
 
 ---
 
-## 📂 3. `src/components/` (UI 컴포넌트)
+## 📂 3. src/stores/ (상태 관리)
 
-### 📄 3.1 `src/components/Board.vue`
-애플리케이션의 최상위 레이아웃을 담당하는 스마트 컴포넌트입니다.
-
-*   **Logic**: `useBoard` 훅을 호출하여 전역 상태를 구독합니다.
-*   **Watch**: `watch` API를 사용하여 `tasks` 데이터나 `filter` 조건이 변경될 때마다 `distributeTasks` 함수를 트리거하여 화면을 갱신합니다.
-*   **Template**: `FilterBar`, `Column` (x3), `ActivityLog`, `TaskModal` 컴포넌트들을 조립하여 화면을 구성합니다.
-
-### 📄 3.2 `src/components/Column.vue`
-특정 상태(Status)의 업무 목록을 세로로 나열하는 컨테이너입니다.
-
-```javascript
-import draggable from 'vuedraggable';
-```
-*   **Library**: `vuedraggable` 라이브러리를 사용하여 드래그 앤 드롭 기능을 구현합니다.
-
-```javascript
-const list = computed({
-    get: () => props.tasks,
-    set: (value) => emit('update:tasks', value)
-});
-```
-*   **Computed Setter**: 계산된 속성(Computed Property)에 `set` 메서드를 정의하여, 드래그로 순서가 변경되었을 때 부모 컴포넌트에 이벤트를 발생(`emit`)시킵니다. 이는 단방향 데이터 흐름을 유지하면서 양방향 바인딩을 구현하는 패턴입니다.
-
-### 📄 3.3 `src/components/TaskCard.vue`
-개별 업무 아이템을 표시하는 프레젠테이션 컴포넌트입니다.
-
-```javascript
-const props = defineProps({ task: { ... } });
-```
-*   **Props**: 부모로부터 `task` 객체를 전달받습니다. Type Check(Object)와 Required 옵션이 설정되어 있습니다.
-
-```javascript
-const priorityConfig = computed(() => { ... });
-```
-*   **Computed**: `task.priority` 값(High, Medium, Low)에 따라 적절한 Tailwind CSS 클래스 문자열을 반환하는 순수 함수입니다. 템플릿 내의 복잡한 로직을 제거하기 위해 사용됩니다.
-
-### 📄 3.4 `src/components/TaskModal.vue`
-업무 생성 및 수정을 위한 폼(Form) 컴포넌트입니다.
-
-```javascript
-const form = reactive({ ... });
-```
-*   **Reactive**: 객체 내부의 속성들이 반응형을 갖도록 `reactive()` 함수를 사용합니다.
-
-```javascript
-watch(() => [props.isOpen, props.initialData], () => { ... });
-```
-*   **Data Synchronization**: 모달이 열리거나(`isOpen`), 수정할 데이터(`initialData`)가 변경될 때 폼의 값을 초기화하거나 채워 넣습니다.
-
-```javascript
-const validate = () => { ... };
-```
-*   **Validation**: 폼 제출 전 필수 입력값(제목, 담당자)을 검사하는 로직입니다. 유효하지 않으면 `errors` 객체에 메시지를 담고, 제출을 차단(Return False)합니다.
-
-### 📄 3.5 `src/components/ActivityLog.vue`
-활동 로그 목록을 표시하는 컴포넌트입니다.
-
-*   **Logic**: `useBoard`에서 `activities` 상태를 가져옵니다.
-*   **Rendering**: `v-for` 디렉티브를 사용하여 로그 배열을 순회하며 DOM 요소를 반복 생성합니다.
-*   **Styling**: `getActivityColor` 함수를 통해 로그의 타입(생성/수정/삭제)에 따라 동적으로 배경색 클래스(`bg-green-500` 등)를 반환합니다.
-
-### 📄 3.6 `src/components/FilterBar.vue`
-검색 및 필터링 조건을 입력받는 UI입니다.
-
-*   **Event Handling**: `` 요소의 `input` 이벤트가 발생할 때마다 `$emit('update:assigneeFilter', ...)`를 호출하여 부모의 상태를 실시간으로 업데이트합니다.
-*   **Two-way Binding**: `v-model` 패턴을 따르는 Emits(`update:propName`)를 사용하여 부모-자식 간 데이터 동기화를 처리합니다.
+### 3.1 `src/stores/kanbanStore.js`
+Pinia 기반 전역 상태 스토어입니다.
+- `defineStore('kanban', { state, getters, actions })`: 스토어 정의.
+- `state`: 로그인 상태, 선택된 보드, 보드/업무/로그 목록 등 전역 상태.
+- `getters`: `selectedBoard`, `boardTasks`, `boardLogs` 파생 상태 계산.
+- `initialize()`: 인증 초기화 + 사용자 로드 + 데이터 로딩.
+- `loadData()`: API 호출 실패 시 `seed` 데이터로 fallback.
+- `loginUser / registerUser / logoutUser`: 인증 로직 연동.
+- `saveBoard / updateBoard / deleteBoard`: 보드 CRUD 및 관련 데이터 정리.
+- `updateTasks`: 로컬 상태 갱신 후 API 반영.
+- `updateLogs`: 새 로그만 API 반영.
 
 ---
 
-## 📂 4. `src/` (진입점 및 설정)
+## 📂 4. src/utils/ (유틸리티)
 
-### 📄 4.1 `src/App.vue`
-Vue 애플리케이션의 루트 컴포넌트입니다.
+### 4.1 `src/utils/auth.js`
+로컬 스토리지 기반 인증 유틸입니다.
+- `USERS_KEY / CURRENT_USER_KEY`: 저장 키 상수.
+- `initializeAuth()`: 기본 유저 시드 저장.
+- `register()`: 신규 사용자 등록.
+- `login()`: 로그인 성공 시 현재 사용자 저장.
+- `logout()`: 현재 사용자 제거.
+- `updateProfile()`: 사용자 정보 및 아바타 갱신.
+- `getAllRegisteredUsers()`: 사용자 목록을 아바타 URL 포함 형태로 반환.
 
-*   **Logic**: `Board` 컴포넌트 하나만을 렌더링하는 래퍼(Wrapper) 역할을 합니다.
-*   **Structure**: `<script setup>`과 `<template>`만 존재하는 단순한 구조입니다.
+---
 
-### 📄 4.2 `src/main.js`
-애플리케이션의 엔트리 포인트(Entry Point)입니다.
+## 📂 5. src/components/ (UI 컴포넌트)
 
-```javascript
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+### 5.1 `src/components/LoginPage.vue`
+로그인/회원가입 화면 컴포넌트입니다.
+- `ref`로 폼 상태(`formData`) 관리.
+- `emit('login'/'register')`로 상위 컴포넌트에 이벤트 전달.
+- 비밀번호 표시 토글, 데모 로그인 제공.
 
-createApp(App).mount('#app')
-```
-*   **`createApp`**: Vue 인스턴스를 생성하는 팩토리 함수입니다.
-*   **`mount`**: 생성된 Vue 앱을 실제 DOM 요소(ID가 `app`인 div)에 부착(Mounting)하여 렌더링을 시작합니다.
+### 5.2 `src/components/Sidebar.vue`
+좌측 사이드바 UI입니다.
+- 사용자 정보, 메뉴, 로그아웃 버튼 표시.
+- `emit('viewChange')`로 대시보드/내업무/즐겨찾기 전환.
 
-### 📄 4.3 `src/style.css`
-전역 CSS 스타일 파일입니다.
+### 5.3 `src/components/DashboardView.vue`
+보드 목록 및 내 업무/즐겨찾기 화면입니다.
+- `accessibleBoards` 계산: 생성자 또는 멤버만 표시.
+- `searchQuery`로 보드/업무 필터링.
+- `myTasks`, `favoriteTasks` 계산.
+- 카드 클릭 시 상위 이벤트 전달.
 
-```css
-@import "tailwindcss";
-```
-*   **Directive**: Tailwind CSS v4를 로드하기 위한 `@import` 구문입니다.
-*   **Theme**: `@theme` 블록 내에서 커스텀 애니메이션(`fade-in`, `zoom-in`) 등을 정의하여 Tailwind의 유틸리티 클래스를 확장합니다.
+### 5.4 `src/components/BoardCard.vue`
+보드 카드 UI 컴포넌트입니다.
+- 보드 제목/설명/멤버 수 표시.
+- 생성자 이름을 계산하여 표시.
+
+### 5.5 `src/components/BoardModal.vue`
+보드 생성/수정 모달입니다.
+- `formData`로 입력값 관리.
+- 팀원 초대/선택, 보드 색상 선택.
+- 저장 시 멤버 객체 배열로 변환 후 `emit('save')`.
+
+### 5.6 `src/components/KanbanBoardView.vue`
+보드 상세 화면입니다.
+- 업무 필터(담당자/우선순위) 적용.
+- 드래그 앤 드롭으로 컬럼 이동.
+- 업무 생성/수정/삭제 시 로그 자동 기록.
+- 보드 수정/삭제 메뉴(생성자만 표시).
+- 업무 CRUD 완료 시 `AlertModal` 표시.
+
+### 5.7 `src/components/KanbanColumn.vue`
+상태별 업무 컬럼입니다.
+- `tasks`를 반복 렌더링.
+- 드래그 이벤트를 상위에 전달.
+
+### 5.8 `src/components/TaskCard.vue`
+업무 카드 컴포넌트입니다.
+- 우선순위 색상, 담당자 요약 표시.
+- 즐겨찾기 토글 버튼 포함.
+
+### 5.9 `src/components/TaskModal.vue`
+업무 생성/수정 모달입니다.
+- 담당자 목록 구성 로직 포함.
+- 필수값(제목, 담당자) 검증.
+- 삭제 시 확인 후 `emit('delete')`.
+
+### 5.10 `src/components/FilterBar.vue`
+담당자/중요도 필터 UI입니다.
+- `emit('assigneeChange' / 'priorityChange')`로 상태 변경.
+
+### 5.11 `src/components/ActivityTimeline.vue`
+활동 로그 타임라인입니다.
+- 액션 유형에 따른 아이콘/색상 적용.
+- 시간 포맷을 `toLocaleString('ko-KR')`로 표시.
+
+### 5.12 `src/components/ProfileModal.vue`
+프로필 수정 모달입니다.
+- DiceBear 아바타 랜덤 생성 기능.
+- 스타일 변경 및 선택 지원.
+
+### 5.13 `src/components/AlertModal.vue`
+커스텀 알림 모달입니다.
+- 제목/메시지/확인 버튼 제공.
+- 단순 확인형 UX에 사용.
+
+---
+
+## 📂 6. src/styles/ (스타일)
+
+### 6.1 `src/styles/globals.css`
+Tailwind 기반 전역 스타일입니다.
+- `@tailwind base/components/utilities`로 유틸리티 활성화.
+- 기본 폰트/색상/테마 변수 정의.
+- `@layer base`로 기본 배경/텍스트 적용.
+
+---
+
+## 📂 7. src/ (진입점 및 문서)
+
+### 7.1 `src/App.vue`
+루트 컴포넌트입니다.
+- 로그인 여부에 따라 `LoginPage` 또는 메인 레이아웃 렌더링.
+- 보드/업무 CRUD 이벤트를 스토어로 위임.
+- 보드 생성/수정/삭제 완료 시 `AlertModal` 표시.
+
+### 7.2 `src/main.js`
+애플리케이션 엔트리 포인트입니다.
+- `createApp(App)`으로 Vue 앱 생성.
+- `createPinia()`로 전역 상태 연결.
+- `mount('#app')`로 렌더링 시작.
+
+### 7.3 `src/README.md`
+`src` 기준 간단 안내 문서입니다.
+- 프로젝트 구조, 실행 방법, 기술 스택 요약.
+
+### 7.4 `src/SETUP_INSTRUCTIONS.md`
+설치/실행 가이드 상세 문서입니다.
+- 의존성 설치, 실행, 문제 해결 정보 포함.
+
+### 7.5 `src/Attributions.md`
+외부 리소스/저작권 관련 표기 문서입니다.
+
+### 7.6 `src/guidelines/Guidelines.md`
+프로젝트 작업 시 가이드라인 문서입니다.

@@ -1,152 +1,299 @@
 <script setup>
-/**
- * [업무 생성/수정 모달 컴포넌트]
- * 새로운 업무를 만들거나 기존 업무를 수정하는 팝업창입니다.
- * 폼 유효성 검사(Validation) 기능이 포함되어 있습니다.
- */
-
-import { reactive, watch, ref } from 'vue';
-import { X } from 'lucide-vue-next';
-
-// 부모로부터 받는 데이터
+import { ref, computed, watch } from 'vue';
+import { X, Check, ChevronDown, Star } from 'lucide-vue-next';
 const props = defineProps({
-  isOpen: Boolean, // 모달 열림 여부
-  initialData: Object // 수정할 때 채워넣을 기존 데이터 (생성 시에는 null)
+  task: {
+    type: Object,
+    default: null,
+  },
+  isOpen: {
+    type: Boolean,
+    required: true,
+  },
+  isNewTask: {
+    type: Boolean,
+    default: false,
+  },
+  boardMembers: {
+    type: Array,
+    default: () => [],
+  },
+  boardCreatedBy: {
+    type: String,
+    default: '',
+  },
+  availableUsers: {
+    type: Array,
+    default: () => [],
+  },
 });
 
-// 부모에게 보낼 이벤트들
-const emit = defineEmits(['close', 'submit', 'delete']);
+const emit = defineEmits(['close', 'save', 'delete']);
 
-// 입력 폼 데이터 (반응형 객체)
-const form = reactive({
+// 담당자 목록 생성
+const assigneeOptions = computed(() => {
+  const options = [];
+  const creatorEmail = props.boardCreatedBy;
+  
+  if (props.boardMembers && props.boardMembers.length > 0) {
+    // 보드에 멤버가 있는 경우
+    if (creatorEmail && props.availableUsers && props.availableUsers.length > 0) {
+      const isCreatorInMembers = props.boardMembers.find(member => member.email === creatorEmail);
+      if (isCreatorInMembers) {
+        options.push({
+          id: isCreatorInMembers.id,
+          name: isCreatorInMembers.name,
+          email: isCreatorInMembers.email,
+          isCreator: true
+        });
+      } else {
+        const creator = props.availableUsers.find(user => user.email === creatorEmail);
+        if (creator) {
+          options.push({
+            id: creator.email,
+            name: creator.name,
+            email: creator.email,
+            isCreator: true
+          });
+        }
+      }
+    }
+    
+    props.boardMembers.forEach(member => {
+      if (member.email !== creatorEmail) {
+        options.push({
+          id: member.id,
+          name: member.name,
+          email: member.email,
+          isCreator: false
+        });
+      }
+    });
+  } else {
+    if (props.availableUsers && props.availableUsers.length > 0) {
+      const creator = props.availableUsers.find(user => user.email === creatorEmail);
+      if (creator) {
+        options.push({
+          id: creator.email,
+          name: creator.name,
+          email: creator.email,
+          isCreator: true
+        });
+      }
+      
+      props.availableUsers.forEach(user => {
+        if (user.email !== creatorEmail) {
+          options.push({
+            id: user.email,
+            name: user.name,
+            email: user.email,
+            isCreator: false
+          });
+        }
+      });
+    }
+  }
+  
+  return options;
+});
+
+const creatorName = computed(
+  () => assigneeOptions.value.find((option) => option.isCreator)?.name || ''
+);
+
+const formData = ref({
+  id: '',
   title: '',
   description: '',
-  assignee: '',
+  assignees: [],
   priority: 'Medium',
-  status: 'Todo'
+  column: 'todo',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  boardId: '',
+  isFavorite: false
 });
 
-// 에러 메시지 저장 객체
-const errors = reactive({
-  title: '',
-  assignee: ''
-});
+const isAssigneeDropdownOpen = ref(false);
 
-// [데이터 동기화]
-// 모달이 열리거나 초기 데이터가 바뀌면 폼 내용을 업데이트합니다.
-watch(() => [props.isOpen, props.initialData], () => {
-  if (props.isOpen) {
-    if (props.initialData) {
-      // 수정 모드: 기존 데이터로 폼 채우기
-      Object.assign(form, {
-        title: props.initialData.title,
-        description: props.initialData.description,
-        assignee: props.initialData.assignee,
-        priority: props.initialData.priority,
-        status: props.initialData.status
-      });
-    } else {
-      // 생성 모드: 폼 초기화
-      Object.assign(form, {
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask) {
+      formData.value = { ...newTask };
+    } else if (props.isNewTask && creatorName.value) {
+      formData.value = {
+        id: '',
         title: '',
         description: '',
-        assignee: '',
+        assignees: [creatorName.value],
         priority: 'Medium',
-        status: 'Todo'
-      });
+        column: 'todo',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        boardId: '',
+        isFavorite: false,
+      };
     }
-    // 에러 메시지 초기화
-    errors.title = '';
-    errors.assignee = '';
+  },
+  { immediate: true }
+);
+
+const handleSave = () => {
+  if (!formData.value.title.trim()) {
+    alert('제목을 입력해주세요.');
+    return;
   }
-});
-
-/**
- * [유효성 검사]
- * 필수 입력 항목(제목, 담당자)이 비어있는지 확인합니다.
- */
-const validate = () => {
-    let isValid = true;
-    errors.title = '';
-    errors.assignee = '';
-
-    if (!form.title.trim()) {
-        errors.title = '제목을 입력해주세요';
-        isValid = false;
-    }
-    if (!form.assignee.trim()) {
-        errors.assignee = '담당자를 입력해주세요';
-        isValid = false;
-    }
-    return isValid;
+  if (!formData.value.assignees || formData.value.assignees.length === 0) {
+    alert('담당자를 최소 1명 이상 선택해주세요.');
+    return;
+  }
+  
+  emit('save', {
+    ...formData.value,
+    updatedAt: new Date(),
+  });
 };
 
-// 제출 버튼 클릭 시 실행
-const handleSubmit = () => {
-    if (validate()) {
-        // 검사 통과 시 부모에게 데이터 전달
-        emit('submit', { ...form });
-        emit('close'); // 모달 닫기
-    }
-};
-
-// 삭제 버튼 클릭 시 실행
 const handleDelete = () => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-        emit('delete', props.initialData.id);
-        emit('close');
-    }
+  if (window.confirm('정말 이 작업을 삭제하시겠습니까?')) {
+    emit('delete', formData.value.id);
+  }
+};
+
+const handleAssigneeToggle = (assigneeName) => {
+  const currentAssignees = formData.value.assignees || [];
+  if (currentAssignees.includes(assigneeName)) {
+    formData.value.assignees = currentAssignees.filter((name) => name !== assigneeName);
+  } else {
+    formData.value.assignees = [...currentAssignees, assigneeName];
+  }
+};
+
+const handleRemoveAssignee = (assigneeName) => {
+  formData.value.assignees = formData.value.assignees.filter((name) => name !== assigneeName);
 };
 </script>
 
 <template>
-  <!-- 모달 오버레이 (배경 어둡게 처리) -->
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-    <!-- 모달 컨텐츠 박스 -->
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-      
-      <!-- 헤더: 제목과 닫기 버튼 -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-100">
-        <h2 class="text-xl font-bold text-gray-800">
-          {{ initialData ? '업무 수정' : '새 업무 생성' }}
+  <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+        <h2 class="font-semibold text-gray-900">
+          {{ isNewTask ? '업무 추가' : '업무 수정' }}
         </h2>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <X :size="24" />
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            @click="formData.isFavorite = !formData.isFavorite"
+            class="p-2 hover:bg-gray-100 rounded transition-colors"
+            :title="formData.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'"
+          >
+            <Star
+              :class="`size-5 transition-colors ${
+                formData.isFavorite 
+                  ? 'fill-yellow-400 text-yellow-400' 
+                  : 'text-gray-400 hover:text-gray-500'
+              }`"
+            />
+          </button>
+          <button
+            @click="emit('close')"
+            class="p-1 hover:bg-gray-100 rounded transition-colors"
+          >
+            <X class="size-5 text-gray-500" />
+          </button>
+        </div>
       </div>
 
-      <!-- 입력 폼 -->
-      <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
-        
-        <!-- 1. 제목 입력 -->
+      <div class="p-6 space-y-4">
+        <!-- 제목 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">제목</label>
+          <label for="title" class="block text-sm font-medium text-gray-900 mb-1.5">제목</label>
           <input
-            v-model="form.title"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-            placeholder="업무 제목"
+            id="title"
+            v-model="formData.title"
+            type="text"
+            placeholder="제목을 입력하세요"
+            class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p v-if="errors.title" class="text-red-500 text-xs mt-1">{{ errors.title }}</p>
         </div>
 
+        <!-- 담당자와 중요도 -->
         <div class="grid grid-cols-2 gap-4">
-          <!-- 2. 담당자 입력 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">담당자</label>
-            <input
-              v-model="form.assignee"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="담당자 이름"
-            />
-            <p v-if="errors.assignee" class="text-red-500 text-xs mt-1">{{ errors.assignee }}</p>
+            <label class="block text-sm font-medium text-gray-900 mb-1.5">담당자</label>
+            
+            <!-- 선택된 담당자 태그들 -->
+            <div v-if="formData.assignees.length > 0" class="flex flex-wrap gap-2 mb-2">
+              <span
+                v-for="assignee in formData.assignees"
+                :key="assignee"
+                class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
+              >
+                {{ assignee }}
+                <button
+                  type="button"
+                  @click="handleRemoveAssignee(assignee)"
+                  class="hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                >
+                  <X class="size-3" />
+                </button>
+              </span>
+            </div>
+
+            <!-- 담당자 추가 드롭다운 -->
+            <div class="relative">
+              <button
+                type="button"
+                @click="isAssigneeDropdownOpen = !isAssigneeDropdownOpen"
+                class="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors text-sm"
+              >
+                <span class="text-gray-700">
+                  {{ formData.assignees.length > 0 ? formData.assignees[0] : '담당자 선택' }}
+                </span>
+                <ChevronDown :class="`size-4 text-gray-500 transition-transform ${isAssigneeDropdownOpen ? 'rotate-180' : ''}`" />
+              </button>
+
+              <template v-if="isAssigneeDropdownOpen">
+                <div
+                  class="fixed inset-0 z-10"
+                  @click="isAssigneeDropdownOpen = false"
+                />
+                <div class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  <div v-if="assigneeOptions.length > 0" class="py-1">
+                    <button
+                      v-for="option in assigneeOptions"
+                      :key="option.id"
+                      type="button"
+                      @click.stop="handleAssigneeToggle(option.name)"
+                      :class="`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                        formData.assignees.includes(option.name) ? 'bg-blue-50' : ''
+                      }`"
+                    >
+                      <span class="flex items-center gap-2">
+                        <span :class="formData.assignees.includes(option.name) ? 'font-medium text-blue-700' : 'text-gray-700'">
+                          {{ option.name }}
+                        </span>
+                        <span v-if="option.isCreator" class="text-xs text-gray-500">(생성자)</span>
+                      </span>
+                      <Check v-if="formData.assignees.includes(option.name)" class="size-4 text-blue-600" />
+                    </button>
+                  </div>
+                  <div v-else class="px-3 py-2 text-sm text-gray-500">
+                    선택 가능한 담당자가 없습니다.
+                  </div>
+                </div>
+              </template>
+            </div>
           </div>
-          
-          <!-- 3. 중요도 선택 -->
+
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">중요도</label>
+            <label for="priority" class="block text-sm font-medium text-gray-900 mb-1.5">중요도</label>
             <select
-              v-model="form.priority"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              id="priority"
+              v-model="formData.priority"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="High">High</option>
               <option value="Medium">Medium</option>
@@ -155,59 +302,58 @@ const handleDelete = () => {
           </div>
         </div>
 
-        <!-- 4. 상태 선택 -->
+        <!-- 상태 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+          <label for="status" class="block text-sm font-medium text-gray-900 mb-1.5">상태</label>
           <select
-            v-model="form.status"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            id="status"
+            v-model="formData.column"
+            class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="Todo">할 일 (Todo)</option>
-            <option value="InProgress">진행 중 (In Progress)</option>
-            <option value="Done">완료 (Done)</option>
+            <option value="todo">할 일 (Todo)</option>
+            <option value="inProgress">진행 중 (In Progress)</option>
+            <option value="done">완료 (Done)</option>
           </select>
         </div>
 
-        <!-- 5. 설명 입력 -->
+        <!-- 설명 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">설명</label>
+          <label for="description" class="block text-sm font-medium text-gray-900 mb-1.5">설명</label>
           <textarea
-            v-model="form.description"
+            id="description"
+            v-model="formData.description"
+            placeholder="설명을 입력하세요"
             rows="4"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="상세 내용을 입력하세요"
-          ></textarea>
+            class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
         </div>
+      </div>
 
-        <!-- 하단 버튼 영역 -->
-        <div class="flex gap-3 pt-4">
-          <!-- 삭제 버튼 (수정 모드일 때만 표시) -->
+      <div class="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex items-center justify-between">
+        <div>
           <button
-            v-if="initialData"
-            type="button"
+            v-if="!isNewTask"
             @click="handleDelete"
-            class="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors font-medium"
+            class="px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
           >
             삭제
           </button>
-          
-          <div class="flex-1"></div>
-          
+        </div>
+        <div class="flex gap-2">
           <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            @click="emit('close')"
+            class="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             취소
           </button>
           <button
-            type="submit"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            @click="handleSave"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
-            {{ initialData ? '수정 완료' : '생성하기' }}
+            수정 완료
           </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
