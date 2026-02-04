@@ -142,6 +142,46 @@
       ],
       "createdBy": "user@naver.com",
       "createdByName": "홍길동"
+    },
+    {
+      "id": "board1770186352629",
+      "title": "ghihgjhg",
+      "description": "jkhgkjhkj",
+      "color": "bg-blue-600",
+      "createdAt": "2026-02-04T06:25:52.629Z",
+      "updatedAt": "2026-02-04T06:25:52.629Z",
+      "memberCount": 1,
+      "unassignedCount": 0,
+      "taskCount": 0,
+      "members": [
+        {
+          "id": "member1770186352629_user@naver.com",
+          "name": "홍길동",
+          "email": "user@naver.com",
+          "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=user@naver.com",
+          "role": "owner",
+          "addedAt": "2026-02-04T06:25:52.629Z"
+        }
+      ],
+      "createdBy": "user@naver.com",
+      "createdByName": "홍길동",
+      "columns": [
+        {
+          "id": "todo",
+          "title": "할 일",
+          "color": "bg-slate-50 border-slate-200"
+        },
+        {
+          "id": "inProgress",
+          "title": "진행 중",
+          "color": "bg-blue-50 border-blue-200"
+        },
+        {
+          "id": "done",
+          "title": "완료",
+          "color": "bg-green-50 border-green-200"
+        }
+      ]
     }
   ],
   "tasks": [
@@ -184,6 +224,20 @@
       "createdAt": "2026-02-04T05:12:34.518Z",
       "updatedAt": "2026-02-04T05:12:34.518Z",
       "boardId": "board1770181663358"
+    },
+    {
+      "id": "task1770186369261",
+      "title": "sdcfsadfdsfx",
+      "description": "sdfsdfsdfsdf",
+      "assignees": [
+        "홍길동"
+      ],
+      "priority": "High",
+      "column": "done",
+      "createdAt": "2026-02-04T06:26:09.261Z",
+      "updatedAt": "2026-02-04T06:28:00.651Z",
+      "boardId": "board1770186352629",
+      "isFavorite": true
     }
   ],
   "logs": [
@@ -312,6 +366,375 @@
       "timestamp": "2026-02-04T05:13:51.489Z",
       "details": "\"fdasfdsafdas\" 작업이 수정되었습니다.",
       "boardId": "board1770181663358"
+    },
+    {
+      "id": "log1770186369288",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 생성",
+      "timestamp": "2026-02-04T06:26:09.288Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 생성되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186371219",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:11.219Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186371969",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:11.969Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186372523",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:12.523Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186373125",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:13.125Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186373583",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:13.583Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186374032",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:14.032Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186374498",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:14.498Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186375255",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:15.255Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186376046",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:16.046Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186376628",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:16.628Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186378240",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:18.240Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186381963",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:21.963Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186382473",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:22.473Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186382969",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:22.969Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186383442",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:23.442Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186383998",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:23.998Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186384431",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:24.431Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186385743",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:25.743Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186386594",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:26.594Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186387326",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:27.326Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186390082",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:30.082Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186390919",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:26:30.919Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186465372",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:45.372Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186465952",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:45.952Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186466842",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:46.842Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186467673",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:47.673Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186468267",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:48.267Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186468909",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:48.909Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186469410",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:49.410Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186469842",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:49.842Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186470350",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:50.350Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186470809",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:50.809Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186471227",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:51.227Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186472217",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:52.217Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 진행 중(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186472749",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:52.749Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 진행 중에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186473724",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:53.724Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186474595",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:54.595Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186475155",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:55.155Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 완료에서 할 일(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186475926",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "작업 이동",
+      "timestamp": "2026-02-04T06:27:55.926Z",
+      "details": "\"sdcfsadfdsfx\" 작업이 할 일에서 완료(으)로 이동되었습니다.",
+      "boardId": "board1770186352629"
+    },
+    {
+      "id": "log1770186480662",
+      "taskId": "task1770186369261",
+      "taskTitle": "sdcfsadfdsfx",
+      "action": "즐겨찾기 추가",
+      "timestamp": "2026-02-04T06:28:00.662Z",
+      "details": "\"sdcfsadfdsfx\" 작업을 즐겨찾기에 추가했습니다.",
+      "boardId": "board1770186352629"
     }
   ]
 }

@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { X, Check, ChevronDown, Star } from 'lucide-vue-next';
+import AlertModal from './AlertModal.vue';
+import ConfirmModal from './ConfirmModal.vue';
+
 const props = defineProps({
   task: {
     type: Object,
@@ -139,13 +142,25 @@ watch(
   { immediate: true }
 );
 
+// Alert Modal State
+const isAlertOpen = ref(false);
+const alertMessage = ref('');
+
+const showAlert = (message) => {
+  alertMessage.value = message;
+  isAlertOpen.value = true;
+};
+
+// Confirm Modal State
+const isDeleteConfirmOpen = ref(false);
+
 const handleSave = () => {
   if (!formData.value.title.trim()) {
-    alert('제목을 입력해주세요.');
+    showAlert('제목을 입력해주세요.');
     return;
   }
   if (!formData.value.assignees || formData.value.assignees.length === 0) {
-    alert('담당자를 최소 1명 이상 선택해주세요.');
+    showAlert('담당자를 최소 1명 이상 선택해주세요.');
     return;
   }
   
@@ -156,9 +171,12 @@ const handleSave = () => {
 };
 
 const handleDelete = () => {
-  if (window.confirm('정말 이 작업을 삭제하시겠습니까?')) {
-    emit('delete', formData.value.id);
-  }
+  isDeleteConfirmOpen.value = true;
+};
+
+const confirmDelete = () => {
+  emit('delete', formData.value.id);
+  isDeleteConfirmOpen.value = false;
 };
 
 const handleAssigneeToggle = (assigneeName) => {
@@ -355,5 +373,25 @@ const handleRemoveAssignee = (assigneeName) => {
         </div>
       </div>
     </div>
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :isOpen="isAlertOpen"
+      :message="alertMessage"
+      @close="isAlertOpen = false"
+      class="z-[60]"
+    />
+
+    <!-- Delete Confirm Modal -->
+    <ConfirmModal
+      :isOpen="isDeleteConfirmOpen"
+      title="업무 삭제"
+      message="정말 이 업무를 삭제하시겠습니까?"
+      confirmText="삭제"
+      type="danger"
+      @close="isDeleteConfirmOpen = false"
+      @confirm="confirmDelete"
+      class="z-[60]"
+    />
   </div>
 </template>

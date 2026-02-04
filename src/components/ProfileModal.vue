@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { X, Save, Camera, Shuffle } from 'lucide-vue-next';
+import AlertModal from './AlertModal.vue';
+
 const props = defineProps({
   user: {
     type: Object,
@@ -66,9 +68,18 @@ watch(() => props.isOpen, (newVal) => {
   }
 });
 
+// Alert Modal State
+const isAlertOpen = ref(false);
+const alertMessage = ref('');
+
+const showAlert = (message) => {
+  alertMessage.value = message;
+  isAlertOpen.value = true;
+};
+
 const handleSave = () => {
   if (!formData.value.name.trim()) {
-    alert('이름을 입력해주세요.');
+    showAlert('이름을 입력해주세요.');
     return;
   }
   
@@ -229,5 +240,13 @@ const getInitials = (name) => {
         </button>
       </div>
     </div>
+    
+    <!-- Alert Modal -->
+    <AlertModal
+      :isOpen="isAlertOpen"
+      :message="alertMessage"
+      @close="isAlertOpen = false"
+      class="z-[60]"
+    />
   </div>
 </template>
